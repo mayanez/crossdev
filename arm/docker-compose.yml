@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+
+  # NOTE: crossbuild & run environment toolchains must be compatible.
+  # DOCKER_CROSS_PATH is the path you'd like to mount for cross-compilation/running.
+
+  crossbuild:
+    build:
+      context: ../crossbuild
+      dockerfile: Dockerfile.crossbuild.distcc
+    image: multiarch/crossbuild:distcc
+    container_name: build_container
+    volumes:
+      - ${DOCKER_CROSS_PATH}:/workdir
+    environment:
+      - DISTCC_ALLOWED_HOST=172.18.0.0/24 # NOTE: Update according to docker IP range.
+      - CROSS_TRIPLE=arm-linux-gnueabihf
+
+  debian:
+    build:
+      context: .
+      dockerfile: Dockerfile.debian.armhf
+    image: debian-distcc:armhf
+    container_name: run_container
+    working_dir: /workdir
+    volumes:
+      - ${DOCKER_CROSS_PATH}:/workdir
+    links:
+      - crossbuild
+    tty: true
+    environment:
+      - DISTCC_HOSTS=build_container,cpp,lzo
+      - DISTCC_FALLBACK=0
+      - DISTCC_SKIP_LOCAL_RETRY=1
+      - DISTCC_BACKOFF_PERIOD=0
+    depends_on:
+      - crossbuild

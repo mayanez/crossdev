@@ -1,0 +1,12 @@
+FROM multiarch/crossbuild
+
+MAINTAINER Miguel Arroyo (miguel@arroyo.me)
+
+RUN apt-get -qq install \
+    distcc \
+    ccache
+
+RUN apt-get clean && \
+    rm -rf /var/lib/apt
+
+ENTRYPOINT ["/workdir/crossbuild_entrypoint.sh"]

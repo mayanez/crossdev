@@ -1,0 +1,8 @@
+#!/bin/sh
+
+docker-cross-run() {
+ PWD=$(echo pwd)
+ docker exec -it run_container /bin/bash -c cd $(echo $PWD | sed 's@'"${DOCKER_CROSS_PATH}"'@/workdir@g') && CC=/usr/lib/distcc/arm-linux-gnueabihf-gcc "#1"
+}
+
+# TODO: Extend with other functionality
