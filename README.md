@@ -49,7 +49,8 @@ Register shell helper functions for simplified use. Add the following to your `.
 
 ## Run
 
-Navigate to the desired architecture and run `docker-compose up`.
+Start the `build_container` by navigating to the `crossbuild` directory and running `docker-compose up`.
+Next, navigate to the desired architecture and run `docker-compose up`.
 You may then use the `docker-cross-run` command from the `docker-cross.rc` to run commands inside of the container.
 
 ---
@@ -57,9 +58,31 @@ You may then use the `docker-cross-run` command from the `docker-cross.rc` to ru
 ## Examples
 
 ### Hello World
+From the specific architecture folder:
 
- TODO: Add simulated terminal for compiling & running helloworld
+    $ export DOCKER_CROSS_PATH=$(readlink -f ..)
+    $ export DOCKER_CROSS_ENTRY_PATH=$(readlink -f ../crossbuild)
+    $ docker-compose up
+
+#### Option 1
+In another shell:
+
+    $ docker exec -it run_container_arm /bin/bash
+
+This will open a shell inside of the `run_container`.
+
+    $ cd /workdir/helloworld
+
+To use the `build_container` use the following:
+
+    $ DISTCC_VERBOSE=1 CC=/usr/lib/distcc/arm-linux-gnueabihf-gcc make
+
+Otherwise, if it's a simple enough program then you can build inside of the `run_container` directly without `distcc`.
+
+#### Option 2
+In another shell:
+
+    $ docker-cross-run cd /workdir/helloworld && make
 
 ### GDB Debugging
 `docker-cross-run gdbserver :2000 <your_binary>`
-
